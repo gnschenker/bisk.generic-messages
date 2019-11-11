@@ -1,4 +1,4 @@
-namespace publisher
+namespace bisk.messages
 {
     public class TextMessage
     {

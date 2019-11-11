@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace publisher
+namespace bisk.serdes
 {
     public class StringSerDes
     {

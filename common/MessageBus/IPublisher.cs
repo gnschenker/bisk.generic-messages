@@ -1,6 +1,6 @@
 using System;
 
-namespace publisher
+namespace bisk.MessageBus
 {
     public interface IPublisher : IDisposable
     {

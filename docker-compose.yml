@@ -15,7 +15,27 @@ services:
 
   publisher:
     image: acme/publisher:1.0
-    build: publisher
+    build: 
+      context: .
+      dockerfile: publisher/Dockerfile
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      EXCHANGE_NAME: bisk.messages.exchange
+    command: dotnet run -p publisher/publisher.csproj EasyNetQDirect
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  consumer:
+    image: acme/consumer:1.0
+    build: 
+      context: .
+      dockerfile: consumer/Dockerfile
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      EXCHANGE_NAME: bisk.messages.exchange
+      ROUTING_KEY: bisk.messages.GenericMessage
+    command: dotnet run -p consumer/consumer.csproj EasyNetQDirect
     depends_on:
       rabbitmq:
         condition: service_healthy
