@@ -66,6 +66,8 @@ docker-compose -f docker-compose-queue.yml logs -f publisher
 docker-compose -f docker-compose-queue.yml logs -f consumer
 --
 
+. In your browser navigate to http://localhost:15672 to use the Admin UI of Rabbit MQ and analyze what's going on.
+
 . Tear down the application with:
 +
 [source]
@@ -98,6 +100,8 @@ docker-compose -f docker-compose-queue-native.yml logs -f publisher
 --
 docker-compose -f docker-compose-queue-native.yml logs -f consumer
 --
+
+. In your browser navigate to http://localhost:15672 to use the Admin UI of Rabbit MQ and analyze what's going on.
 
 . Tear down the application with:
 +
@@ -133,6 +137,8 @@ docker-compose logs -f publisher
 docker-compose logs -f consumer
 --
 
+. In your browser navigate to http://localhost:15672 to use the Admin UI of Rabbit MQ and analyze what's going on.
+
 . Tear down the application with:
 +
 [source]
@@ -166,6 +172,8 @@ docker-compose -f docker-compose-native.yml logs -f publisher
 --
 docker-compose -f docker-compose-native.yml logs -f consumer
 --
+
+. In your browser navigate to http://localhost:15672 to use the Admin UI of Rabbit MQ and analyze what's going on.
 
 . Tear down the application with:
 +
