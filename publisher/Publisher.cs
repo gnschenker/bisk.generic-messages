@@ -32,8 +32,8 @@ namespace publisher
         {
             switch(key)
             {
-                case "rabbitmq": return new RabbitMqPublisher(QUEUE_NAME, new JsonSerDes());
-                case "easynetq": return new EasyNetQPublisher(QUEUE_NAME);
+                case "rabbitmq": return new RabbitMqPublisher(new JsonSerDes());
+                case "easynetq": return new EasyNetQPublisher();
                 case "easynetqdirect": return new EasyNetQDirectPublisher();
                 default:
                     throw new ArgumentException("Not a know publisher: {key}");

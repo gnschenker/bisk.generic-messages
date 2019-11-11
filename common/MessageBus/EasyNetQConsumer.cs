@@ -8,13 +8,16 @@ namespace bisk.MessageBus
     {
         private readonly string RABBITMQ_HOST = 
             Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
-        private readonly string queueName;
+        private readonly string QUEUE_NAME = 
+            Environment.GetEnvironmentVariable("QUEUE_NAME") ?? "bisk.sample.queue";
         private readonly IAdvancedBus advancedBus;
 
-        public EasyNetQConsumer(string queueName)
+        public EasyNetQConsumer()
         {
             Console.WriteLine("*** Using EasyNetQ Consumer");
-            this.queueName = queueName;
+            Console.WriteLine($"***** RabbitMQ Host: {RABBITMQ_HOST}");
+            Console.WriteLine($"***** Queue Name:    {QUEUE_NAME}");
+
             advancedBus = RabbitHutch.CreateBus($"host={RABBITMQ_HOST}").Advanced;
         }
 
@@ -24,7 +27,7 @@ namespace bisk.MessageBus
 
         public void Subscribe<TMessage>(Action<TMessage> handler) where TMessage : class
         {
-            var queue = advancedBus.QueueDeclare(queueName,
+            var queue = advancedBus.QueueDeclare(QUEUE_NAME,
                                                  durable: true,
                                                  exclusive: false,
                                                  autoDelete: false);

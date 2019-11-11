@@ -6,22 +6,26 @@ namespace bisk.MessageBus
 {
     public class RabbitMqPublisher : IPublisher
     {
-        private readonly string queueName;
         private readonly ISerDes serdes;
         private readonly IConnection connection;
-        private readonly string RABBITMQ_HOST = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+        private readonly string RABBITMQ_HOST = 
+            Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+        private readonly string QUEUE_NAME =
+            Environment.GetEnvironmentVariable("QUEUE_NAME") ?? "bisk.sample.queue";
 
         public IModel channel { get; }
 
-        public RabbitMqPublisher(string queueName, ISerDes serdes)
+        public RabbitMqPublisher(ISerDes serdes)
         {
             Console.WriteLine("*** Using RabbitMQ Publisher");
-            this.queueName = queueName;
+            Console.WriteLine($"***** RabbitMQ Host: {RABBITMQ_HOST}");
+            Console.WriteLine($"***** Queue Name:    {QUEUE_NAME}");
+
             this.serdes = serdes;
             var factory = new ConnectionFactory() { HostName = RABBITMQ_HOST };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
-            channel.QueueDeclare(queue: queueName,
+            channel.QueueDeclare(queue: QUEUE_NAME,
                                  durable: true,
                                  exclusive: false,
                                  autoDelete: false,
@@ -42,7 +46,7 @@ namespace bisk.MessageBus
             var properties = channel.CreateBasicProperties();
             properties.Persistent = true;
             channel.BasicPublish(exchange: "",
-                                 routingKey: queueName,
+                                 routingKey: QUEUE_NAME,
                                  basicProperties: properties,
                                  body: body);
         }

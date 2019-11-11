@@ -1,0 +1,40 @@
+version: "2.4"
+services:
+  rabbitmq:
+    image: rabbitmq:3.8.0-management-alpine
+    hostname: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    healthcheck:
+      test: nc -z localhost 5672 || exit -1
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  publisher:
+    image: acme/publisher:1.0
+    build: 
+      context: .
+      dockerfile: publisher/Dockerfile
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      QUEUE_NAME: bisk.messages.queue
+    command: dotnet run -p publisher/publisher.csproj EasyNetQ
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  consumer:
+    image: acme/consumer:1.0
+    build: 
+      context: .
+      dockerfile: consumer/Dockerfile
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      QUEUE_NAME: bisk.messages.queue
+    command: dotnet run -p consumer/consumer.csproj EasyNetQ
+    depends_on:
+      rabbitmq:
+        condition: service_healthy

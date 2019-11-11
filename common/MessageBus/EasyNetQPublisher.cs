@@ -7,18 +7,21 @@ namespace bisk.MessageBus
 {
     public class EasyNetQPublisher : IPublisher
     {
-        private string queueName;
         private IAdvancedBus advancedBus;
-        private readonly string RABBITMQ_HOST = 
+        private readonly string RABBITMQ_HOST =
             Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+        private readonly string QUEUE_NAME =
+            Environment.GetEnvironmentVariable("QUEUE_NAME") ?? "bisk.sample.queue";
 
-        public EasyNetQPublisher(string queueName)
+        public EasyNetQPublisher()
         {
             Console.WriteLine("*** Using EasyNetQ Publisher");
-            this.queueName = queueName;
+            Console.WriteLine($"***** RabbitMQ Host: {RABBITMQ_HOST}");
+            Console.WriteLine($"***** Queue Name:    {QUEUE_NAME}");
+
             advancedBus = RabbitHutch.CreateBus($"host={RABBITMQ_HOST}").Advanced;
             // declare a durable queue
-            var queue = advancedBus.QueueDeclare(queueName, 
+            var queue = advancedBus.QueueDeclare(QUEUE_NAME, 
                                                  durable: true,
                                                  exclusive: false,
                                                  autoDelete: false);
@@ -33,7 +36,7 @@ namespace bisk.MessageBus
             // Serialization to JSON happens implicitely here!
             var msg = new Message<TMessage>(message);
             msg.Properties.AppId = "Sample EasyNetQ Publisher";
-            advancedBus.Publish(Exchange.GetDefault(), queueName, false, msg);
+            advancedBus.Publish(Exchange.GetDefault(), QUEUE_NAME, false, msg);
         }
     }
 }

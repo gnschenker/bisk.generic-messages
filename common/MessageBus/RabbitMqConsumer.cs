@@ -7,15 +7,18 @@ namespace bisk.MessageBus
 {
     public class RabbitMqConsumer : IConsumer
     {
-        private readonly string queueName;
         private readonly ISerDes serdes;
         private IConnection connection;
         private IModel channel;
         private readonly string RABBITMQ_HOST = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+        private readonly string QUEUE_NAME = Environment.GetEnvironmentVariable("QUEUE_NAME") ?? "bisk.sample.queue";
 
-        public RabbitMqConsumer(string queueName, ISerDes serdes)
+        public RabbitMqConsumer(ISerDes serdes)
         {
-            this.queueName = queueName;
+            Console.WriteLine("*** Using RabbitMQ Consumer");
+            Console.WriteLine($"***** RabbitMQ Host: {RABBITMQ_HOST}");
+            Console.WriteLine($"***** Queue Name:    {QUEUE_NAME}");
+
             this.serdes = serdes;
         }
 
@@ -31,7 +34,7 @@ namespace bisk.MessageBus
             var factory = new ConnectionFactory() { HostName = RABBITMQ_HOST };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
-            channel.QueueDeclare(queue: queueName,
+            channel.QueueDeclare(queue: QUEUE_NAME,
                                  durable: true,
                                  exclusive: false,
                                  autoDelete: false,
@@ -46,7 +49,7 @@ namespace bisk.MessageBus
                 handler(msg);
                 channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
             };
-            channel.BasicConsume(queue: queueName,
+            channel.BasicConsume(queue: QUEUE_NAME,
                                  autoAck: false,    //true,
                                  consumer: consumer);
         }
