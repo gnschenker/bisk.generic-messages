@@ -32,6 +32,7 @@ namespace consumer
             {
                 case "rabbitmq": return new RabbitMqConsumer(new JsonSerDes());
                 case "easynetq": return new EasyNetQConsumer();
+                case "rabbitmqdirect": return new RabbitMqDirectConsumer(new JsonSerDes());
                 case "easynetqdirect": return new EasyNetQDirectConsumer();
                 default:
                     throw new ArgumentException("Not a know consumer: {key}");

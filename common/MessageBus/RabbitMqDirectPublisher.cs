@@ -6,21 +6,27 @@ namespace bisk.MessageBus
 {
     public class RabbitMqDirectPublisher : IPublisher
     {
-        private readonly string exchangeName;
         private readonly ISerDes serdes;
         private readonly IConnection connection;
-        private readonly string RABBITMQ_HOST = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+        private readonly IModel channel;
         
-        public IModel channel { get; }
+        private readonly string RABBITMQ_HOST = 
+            Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+        private readonly string EXCHANGE_NAME =
+            Environment.GetEnvironmentVariable("EXCHANGE_NAME") ?? "bisk.sample.exchange";
 
-        public RabbitMqDirectPublisher(string exchangeName, ISerDes serdes)
+
+        public RabbitMqDirectPublisher(ISerDes serdes)
         {
-            this.exchangeName = exchangeName;
+            Console.WriteLine("*** Using RabbitMQ Direct Publisher ***");
+            Console.WriteLine($"***** RabbitMQ Host: {RABBITMQ_HOST}");
+            Console.WriteLine($"***** Exchange Name: {EXCHANGE_NAME}");
+
             this.serdes = serdes;
             var factory = new ConnectionFactory() { HostName = RABBITMQ_HOST };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
-            channel.ExchangeDeclare(exchange: exchangeName, type: "direct");
+            channel.ExchangeDeclare(exchange: EXCHANGE_NAME, type: "direct");
         }
 
         public void Dispose()
@@ -35,7 +41,7 @@ namespace bisk.MessageBus
             var body = serdes.Serialize(message);
 
             var routingKey = message.GetType().FullName;
-            channel.BasicPublish(exchange: exchangeName,
+            channel.BasicPublish(exchange: EXCHANGE_NAME,
                                  routingKey: routingKey,
                                  basicProperties: null,
                                  body: body);

@@ -7,18 +7,24 @@ namespace bisk.MessageBus
 {
     public class RabbitMqDirectConsumer : IConsumer
     {
-        private readonly string exchangeName;
-        private readonly string routingKey;
         private readonly ISerDes serdes;
         private IConnection connection;
         private IModel channel;
-        private readonly string RABBITMQ_HOST = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+        private readonly string RABBITMQ_HOST = 
+            Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+        private readonly string EXCHANGE_NAME =
+            Environment.GetEnvironmentVariable("EXCHANGE_NAME") ?? "bisk.sample.exchange";
+        private readonly string ROUTING_KEY =
+            Environment.GetEnvironmentVariable("ROUTING_KEY") ?? "bisk.messages.GenericMessage";
 
-        public RabbitMqDirectConsumer(string exchangeName, string routingKey, ISerDes serdes)
+        public RabbitMqDirectConsumer(ISerDes serdes)
         {
-            this.exchangeName = exchangeName;
+            Console.WriteLine("*** Using RabbitMQ Direct Consumer");
+            Console.WriteLine($"***** RabbitMQ Host: {RABBITMQ_HOST}");
+            Console.WriteLine($"***** Exchange Name: {EXCHANGE_NAME}");
+            Console.WriteLine($"***** Routing Key:   {ROUTING_KEY}");
+
             this.serdes = serdes;
-            this.routingKey = routingKey;
         }
 
         public void Dispose()
@@ -33,12 +39,11 @@ namespace bisk.MessageBus
             var factory = new ConnectionFactory() { HostName = RABBITMQ_HOST };
             connection = factory.CreateConnection();
             channel = connection.CreateModel();
-            channel.ExchangeDeclare(exchange: exchangeName,
-                                    type: "direct");
+            channel.ExchangeDeclare(exchange: EXCHANGE_NAME, type: "direct");
             var queueName = channel.QueueDeclare().QueueName;
             channel.QueueBind(queue: queueName,
-                                  exchange: exchangeName,
-                                  routingKey: routingKey);
+                              exchange: EXCHANGE_NAME,
+                              routingKey: ROUTING_KEY);
 
 
             var consumer = new EventingBasicConsumer(channel);
@@ -48,7 +53,7 @@ namespace bisk.MessageBus
                 handler(msg);
                 channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
             };
-            channel.BasicConsume(queue: exchangeName,
+            channel.BasicConsume(queue: queueName,
                                  autoAck: false,    //true,
                                  consumer: consumer);
         }

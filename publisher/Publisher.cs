@@ -9,7 +9,6 @@ namespace publisher
 {
     class Publisher
     {
-        const string QUEUE_NAME = "bisk.sample.queue";
         private static readonly Random rnd = new Random((int)DateTime.Now.Ticks);
         private static readonly AutoResetEvent _waitHandle = new AutoResetEvent(false);
 
@@ -34,6 +33,7 @@ namespace publisher
             {
                 case "rabbitmq": return new RabbitMqPublisher(new JsonSerDes());
                 case "easynetq": return new EasyNetQPublisher();
+                case "rabbitmqdirect": return new RabbitMqDirectPublisher(new JsonSerDes());
                 case "easynetqdirect": return new EasyNetQDirectPublisher();
                 default:
                     throw new ArgumentException("Not a know publisher: {key}");
@@ -81,7 +81,7 @@ namespace publisher
                     Error = "Nothing to see here..."
                 }
             };
-            msg.SetPayload<TMessage>(payload);
+            msg.SetPayload(payload);
             return msg;
         }
     }

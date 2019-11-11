@@ -26,6 +26,9 @@ namespace bisk.MessageBus
 
         public void Dispose()
         {
+            if(advancedBus != null)
+                advancedBus.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         public void Subscribe<TMessage>(Action<TMessage> handler) where TMessage : class

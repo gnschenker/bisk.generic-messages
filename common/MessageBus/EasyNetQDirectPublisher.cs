@@ -6,7 +6,7 @@ namespace bisk.MessageBus
 {
     public class EasyNetQDirectPublisher : IPublisher
     {
-        private IAdvancedBus advancedBus;
+        private readonly IAdvancedBus advancedBus;
         private readonly IExchange exchange;
         private readonly string RABBITMQ_HOST =
             Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
@@ -26,6 +26,9 @@ namespace bisk.MessageBus
 
         public void Dispose()
         {
+            if (advancedBus != null)
+                advancedBus.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         public void Publish<TMessage>(TMessage message) where TMessage : class
